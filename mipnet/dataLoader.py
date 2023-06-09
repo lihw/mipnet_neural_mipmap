@@ -31,7 +31,7 @@ def read_exr_render(img_path):
 
 def load_roughness(images_path, mat_name):
 	roughnessmap = file_utils.read_img_as_float(
-		images_path + mat_name + "/roughness.png",
+		images_path + mat_name + "/roughness",
 		multi_channel=False)
 	# clamp the min roughness values to the min roughness (see renderer.py)
 	min_roughness = 0.045
@@ -41,28 +41,28 @@ def load_roughness(images_path, mat_name):
 
 def load_normal(images_path, mat_name, opengl_normals):
 	normalmap = torch.from_numpy(file_utils.read_img_as_float(
-		images_path + mat_name + "/normal.png",
+		images_path + mat_name + "/normal",
 		multi_channel=True))
 	return unpack_normal(normalmap, opengl_normals).float()
 
 
 def load_albedo(images_path, image_name):
 	img = torch.from_numpy(file_utils.read_img_as_float(
-		images_path + image_name + "/basecolor.png",
+		images_path + image_name + "/basecolor",
 		True))  # multi-channel
 	return file_utils.srgb2linrgb(img)
 
 
 def load_metallic(images_path, image_name):
 	img = file_utils.read_img_as_float(
-		images_path + image_name + "/metallic.png",
+		images_path + image_name + "/metallic",
 		False)  # multi-channel
 	return torch.from_numpy(img).float()
 
 
 def load_height(images_path, image_name):
 	img = file_utils.read_img_as_float(
-		images_path + image_name + "/height.png",
+		images_path + image_name + "/height",
 		False)  # multi-channel
 	return torch.from_numpy(img).float()
 
@@ -132,6 +132,7 @@ class MIPNetDataset(torch.utils.data.Dataset):
 
 	def load_materials_from_folder(self, mat_path, file_to_load, verbose=True):
 		txt_mat_names = self.list_all_paths(file_to_load)
+		txt_mat_names = [s for s in txt_mat_names if s] # Remove empty strings from the array
 		# self.nb_mat = len(txt_mat_names)
 		if verbose:
 			print("found: " + str(len(txt_mat_names)) + " in txt file")

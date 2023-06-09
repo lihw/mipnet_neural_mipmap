@@ -259,14 +259,25 @@ def process_image_as_float(img, multi_channel=True):
 
 
 def read_img_as_float(img_path, multi_channel=True):
-	image = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+	print(img_path)
+	formats = ['.jpg', '.png', '.bmp', '.exr']
+	image = None
+	for format in formats:
+		image_path = img_path + format
+		if not os.path.exists(image_path):
+			continue
+		image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+		if image is None:
+			continue
+		#roughness sometimes has 3 channels
+		if not multi_channel and image.ndim > 2:
+			image = image[:, :, 0]
+		return process_image_as_float(image, multi_channel)
+		
 	if image is None:
 		exit_with_message(
-			"No file at specified path: " + img_path)
-	#roughness sometimes has 3 channels
-	if not multi_channel and image.ndim > 2:
-		image = image[:, :, 0]
-	return process_image_as_float(image, multi_channel)
+				"No file at specified path with supported formats including jpg, png, bmp and exr: " + img_path)
+		
 
 
 def srgb2linrgb(input_color):
